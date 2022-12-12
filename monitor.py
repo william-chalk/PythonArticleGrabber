@@ -1,53 +1,33 @@
 import time
 import hashlib
 from urllib.request import urlopen,Request
+from bs4 import BeautifulSoup
+import requests
 
 # Setting the URL you want to monitor
-url = Request("https://conservativebrief.com/")
+url = "https://conservativebrief.com/"
 
-# to perfomr a GET request and load the 
-# content of the website and store it in a variable
-response = urlopen(url).read()
+# Provider request header
+headers = {'User-agent': 'Mozilla/5.0'}
 
-# to create the initial hash
-currentHash = hashlib.sha224(response).hexdigest()
-print("running")
-time.sleep(10)
-while True:
-    try:
-        # perform the get request and store it in a var
-        response = urlopen(url).read()
+request = requests.get(url,headers=headers)
+html = request.content
 
-        # create a hash
-        currentHash = hashlib.sha224(response).hexdigest()
+soup = BeautifulSoup(html,'html.parser')
 
-        # wait for 30 seconds
-        time.sleep(30)
+def con_brief_scrapper():
+    news_list = []
 
-        # perform the GET request
-        response = urlopen(url).read()
+    for h in soup.findAll("h2",{'class':"post-title"}):
+        for i in soup.findChildren("a",recursive=True):
+            news_title = i.contents[0]
+            if news_title not in news_list:
+                news_list.append(news_title)
 
-        # create a new hash
-        newHash = hashlib.sha224(response).hexdigest()
 
-        # check if new hash is same as the previous hash
-        if newHash == currentHash:
-            continue
 
-        # if something changed in the hashes 
-        else:
-            # notifies
-            print("Something was updated")
+    for i, title in enumerate(news_list):
+        print(i + 1,':',title)
 
-            # again read the website
-            response = urlopen(url).read()
 
-            # create a hash
-            currentHash = hashlib.sha224(response).hexdigest()
-
-            # wait for 30 seconds
-            time.sleep(30)
-            continue
-    # handles exceptions 
-    except Exception as e:
-        print("err")
+con_brief_scrapper()
