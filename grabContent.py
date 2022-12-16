@@ -24,6 +24,9 @@ sheet2 = sheet.worksheet("DC Enquirer")
 
 
 
+
+
+
 # Provider request header
 headers = {'User-agent': 'Mozilla/5.0'}
 
@@ -77,6 +80,14 @@ def dc_enq_scrapper():
         sheet2.update(f"A{count}",news_title.text)
         sheet2.update(f"B{count}",news_title.get("href"))
         count += 1
+        hrefUrl = news_title.get("href")
+        hrefRequest = requests.get(hrefUrl,headers=headers)
+        hrefContent = hrefRequest.content
+        hrefSoup = BeautifulSoup(hrefContent,'html.parser')
+        hrefPrint = hrefSoup.find_all("p",text=True)
+        for i in hrefPrint:
+            print(i.text)
+            sheet2.update(f"C{count}",i.text)
         if news_title not in news_list:
             news_list.append(news_title.text + " " + news_title.get('href'))
 
@@ -86,5 +97,5 @@ def dc_enq_scrapper():
     for i, title in enumerate(news_list):
         print("DC Enquirer | ",i,':',title)
 
-con_brief_scrapper()
+# con_brief_scrapper()
 dc_enq_scrapper()
