@@ -49,7 +49,8 @@ def monitor_article():
             else:
                 # notifies
                 print("Something was updated")
-
+                dc_enq_scrapper()
+                con_brief_scrapper()
                 # again read the website
                 response1 = urlopen(url1).read()
                 response2 = urlopen(url2).read()
